@@ -27,7 +27,7 @@ std::string GmailConnector::fetchEmails(int num_emails) {
 
     // Redirect stderr into the pipe so authentication errors are visible
     // rather than vanishing.
-    const std::string command = interpreter + " fetch_emails.py " + std::to_string(num_emails) + " 2>&1";
+    const std::string command = interpreter + " src/fetch_emails.py " + std::to_string(num_emails) + " 2>&1";
 
     std::cout << "Fetching " << num_emails << " email(s) via " << interpreter << "..." << std::endl;
 

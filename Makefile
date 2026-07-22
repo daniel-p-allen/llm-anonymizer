@@ -6,8 +6,14 @@
 #
 # Requires: skm on PATH — https://splashkit.io/installation/
 
+#   src/     program source
+#   vendor/  third-party headers, vendored so there is nothing to install
+#   assets/  fonts and other runtime resources
+#   scripts/ repository tooling
+
 BIN  := anonymizer
-SRCS := $(wildcard *.cpp)
+SRCS := $(wildcard src/*.cpp)
+INCS := -Isrc -Ivendor
 STD  := c++14
 
 .PHONY: all clean check demo deps
@@ -15,7 +21,7 @@ STD  := c++14
 all: $(BIN)
 
 $(BIN): $(SRCS)
-	skm clang++ -std=$(STD) -g $(SRCS) -o $(BIN)
+	skm clang++ -std=$(STD) $(INCS) -g $(SRCS) -o $(BIN)
 
 # Run the round trip against the bundled sample data.
 # No Gmail account, no OAuth credentials, no setup.

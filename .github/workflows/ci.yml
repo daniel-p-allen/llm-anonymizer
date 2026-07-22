@@ -1,0 +1,50 @@
+name: checks
+
+# The C++ build is not run here. SplashKit is installed through its own manager
+# rather than a package repository, and a build job that is flaky tells you less
+# than no build job at all. What runs below is deterministic: it either passes or
+# something is genuinely wrong.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: No personal data in the repository
+        run: ./scripts/check-pii.sh
+
+      - name: Python retrieval script parses
+        run: python -m py_compile src/fetch_emails.py
+
+      - name: Sample data is valid JSON and has the expected shape
+        run: |
+          python - <<'PY'
+          import json, sys
+
+          with open('sample_data.json') as f:
+              data = json.load(f)
+
+          assert isinstance(data, list) and data, "sample_data.json must be a non-empty list"
+
+          required = {'from', 'to', 'subject', 'content'}
+          for i, entry in enumerate(data):
+              missing = required - entry.keys()
+              assert not missing, f"entry {i} is missing {missing}"
+
+          print(f"{len(data)} sample emails, all fields present")
+          PY
+
+      - name: GUI config is valid JSON
+        run: python -c "import json; json.load(open('gui_config.json'))"

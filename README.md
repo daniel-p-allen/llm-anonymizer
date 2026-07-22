@@ -1,5 +1,8 @@
 # anonymizer
 
+[![checks](https://github.com/daniel-p-allen/llm-anonymizer/actions/workflows/ci.yml/badge.svg)](https://github.com/daniel-p-allen/llm-anonymizer/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Use an LLM on your real email without handing over its contents.
 
 The tool strips identifying values out of your messages, so you can paste them
@@ -77,6 +80,19 @@ punctuation and formatting intact:
 ```
 
 ---
+
+## Layout
+
+```
+src/       program source (C++ core, plus the Python Gmail bridge)
+vendor/    third-party headers, committed so there is nothing to install
+assets/    fonts and other runtime resources
+scripts/   repository tooling
+docs/      screenshots
+```
+
+`sample_data.json` and `gui_config.json` sit at the root because you are meant to
+open and edit them.
 
 ## Requirements
 
@@ -204,6 +220,11 @@ file, a demo path and documentation; the architecture is unchanged.
 [`ORIGINAL-2023.md`](ORIGINAL-2023.md) is the design record: what it set out to
 do, the decisions behind it, what had to be repaired, and what it still does not
 cover.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). `vendor/json.hpp` is
+[nlohmann/json](https://github.com/nlohmann/json), also MIT.
 
 ## Development notes
 

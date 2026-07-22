@@ -39,9 +39,12 @@ done
 # any compressed file whose bytes happen to satisfy the pattern, which produced
 # false failures on the screenshots. Images are checked by eye before being
 # added; this pass is for text.
+# vendor/ is third-party source and carries its own authors' addresses; this
+# check is about our data, not theirs. check-pii.sh contains the patterns it
+# searches for, so it also has to exclude itself.
 echo "Checking for non-example email addresses in tracked text files..."
 addresses=$(git ls-files -z \
-    | grep -zZv -e '^json.hpp$' -e '^scripts/check-pii.sh$' \
+    | grep -zZv -e '^vendor/' -e '^scripts/check-pii.sh$' \
     | xargs -0 grep -IhoE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' 2>/dev/null \
     | grep -vE '@example\.(com|org|net)$' \
     | sort -u)

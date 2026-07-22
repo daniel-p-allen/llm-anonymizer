@@ -11,7 +11,7 @@
 // Load resources
 void load_resources() {
 
-    load_font("arial", "DMSans_36pt-Bold.ttf");
+    load_font("arial", "assets/DMSans_36pt-Bold.ttf");
 }
 
 // Render a long string, splitting it into segments if necessary.
