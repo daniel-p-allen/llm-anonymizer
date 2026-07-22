@@ -26,8 +26,9 @@ vector<email_content> read_data_from_json(const std::string &filename) {
     file >> jsonData;
     file.close();
 
-    // Print the number of entries read from the file
-    cout << "Read " << jsonData.size() << " entries from " << filename << endl; // Debug statement
+    // The caller reports the count where it is useful. Printing it here meant
+    // it also appeared when the file was re-read internally, which read as an
+    // error mid-way through the review step.
 
     // Iterate through the json_custom object and store the data in a vector of email_content
     for (const auto &entry : jsonData) {

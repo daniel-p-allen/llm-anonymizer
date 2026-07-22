@@ -24,6 +24,9 @@ __pycache__/
 *.pyc
 
 # --- Build artifacts ------------------------------------------------------
+# `anonymizer` is the compiled binary produced by the Makefile. It shares its
+# name with the project, so it is easy to commit by accident.
+anonymizer
 app
 appce
 *.o
@@ -36,7 +39,10 @@ logs/
 *.log
 
 # --- Editor / OS ----------------------------------------------------------
-.vscode/
+# c_cpp_properties.json is kept so IntelliSense can find the SplashKit headers.
+# The browse database is a multi-megabyte local cache and must not be committed.
+.vscode/*
+!.vscode/c_cpp_properties.json
 .DS_Store
 
 # --- Working notes (not for the public repo) ------------------------------

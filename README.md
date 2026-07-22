@@ -125,9 +125,38 @@ Menu:
 ```
 
 The review window shows each scrubbed email so you can confirm by eye that
-nothing sensitive is left before anything is sent. Press a key to advance.
+nothing sensitive is left before anything is sent:
 
-Then paste `anonymized_data.json` into the model, save its reply as
+Each email is judged individually:
+
+| Key | |
+|---|---|
+| `A` | Approve this email |
+| `R` | Reject this email |
+| `SPACE` | Skip — decide later |
+| `B` | Back to the previous email |
+
+At the end you get a tally, and `ENTER` finishes. `anonymized_data.json` is then
+rewritten to contain **only** the approved emails:
+
+```
+Approved 30 of 33 email(s).
+3 withheld — anonymized_data.json contains only the approved ones.
+```
+
+Per-email rather than one verdict for the batch, because with thirty emails you
+may want to keep twenty-nine and drop one — a single decision would force you to
+discard everything or share something you were unsure about.
+
+This step is not decoration. The pattern matching cannot detect names, street
+addresses or anything else without a recognisable shape, so a person is the last
+check before data leaves the machine. Two deliberate choices follow from that:
+
+- **Anything left undecided is withheld, not shared.** Close the window halfway
+  and only what you explicitly approved survives. Silence is not consent.
+- **Approve nothing and the file is deleted**, rather than left as an empty shell.
+
+Once approved, paste `anonymized_data.json` into the model, save its reply as
 `finished_data.csv`, and choose option 3 to restore your details.
 
 `make check` scans the repository for anything resembling real personal data —

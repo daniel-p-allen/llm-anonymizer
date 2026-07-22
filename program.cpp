@@ -11,6 +11,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <cstdio>
 #include "splashkit.h"
 
 // Data Anonymizer V 1.0
@@ -40,16 +41,54 @@ void print_next_steps() {
     write_line("  3. Run this program again and choose 3 to put your real details back.");
 }
 
-// Anonymize a JSON file and offer the review window.
+// Anonymize a JSON file, then have the result reviewed before it can be shared.
 void anonymize_and_review(placeholder_data& placeholders, const std::string& source, bool show_gui) {
     if (!validate_email_data(placeholders, source)) {
         return;
     }
 
-    if (show_gui) {
-        GUI myGui;
-        init_gui(myGui, "gui_config.json");
-        run_gui(myGui);
+    if (!show_gui) {
+        // --demo skips the review window so it can run in a plain terminal.
+        write_line("");
+        write_line("(Demo mode: the review window was skipped. Run ./anonymizer to use it.)");
+        print_next_steps();
+        return;
+    }
+
+    GUI myGui;
+    init_gui(myGui, "gui_config.json");
+
+    std::vector<review_result> decisions;
+    run_gui(myGui, decisions);
+
+    // Rewrite the file so it holds only what was actually approved. Anything
+    // rejected or left undecided is withheld — the file on disk should never
+    // contain something the reviewer did not agree to share.
+    std::vector<email_content> reviewed = read_data_from_json("anonymized_data.json");
+    std::vector<email_content> approved;
+
+    for (size_t i = 0; i < reviewed.size() && i < decisions.size(); ++i) {
+        if (decisions[i] == REVIEW_APPROVED) {
+            approved.push_back(reviewed[i]);
+        }
+    }
+
+    const int withheld = static_cast<int>(reviewed.size()) - static_cast<int>(approved.size());
+
+    write_line("");
+    if (approved.empty()) {
+        remove("anonymized_data.json");
+        write_line("Nothing was approved, so anonymized_data.json has been deleted.");
+        write_line("The mapping in swapped.json was kept, so an earlier reply can still be restored.");
+        return;
+    }
+
+    save_data_to_json("anonymized_data.json", approved);
+
+    write_line("Approved " + std::to_string(approved.size()) + " of " +
+               std::to_string(reviewed.size()) + " email(s).");
+    if (withheld > 0) {
+        write_line(std::to_string(withheld) + " withheld — anonymized_data.json contains only the approved ones.");
     }
 
     print_next_steps();

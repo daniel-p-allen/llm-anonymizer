@@ -69,8 +69,19 @@ void init_gui(GUI &gui, const std::string &configFile) {
     }
 }
 
-// Function to run the GUI
-void run_gui(GUI &gui) {
+// Function to run the GUI.
+//
+// This is the human-in-the-loop step: the regex matching cannot detect names or
+// addresses, so a person confirms the scrubbed text before any of it is shared.
+// A review with no verdict would be decoration, so each email is judged on its
+// own and the results are collected in `decisions`.
+//
+// Per-email rather than one verdict for the batch: with thirty emails you may
+// well want to keep twenty-nine and drop one, and a single decision would force
+// you to discard everything or share something you were unsure about.
+//
+// Anything left undecided is not approved. Silence is not consent here.
+void run_gui(GUI &gui, std::vector<review_result> &decisions) {
 
     // Open the window
     open_window(gui.title, gui.width, gui.height);
@@ -93,12 +104,21 @@ void run_gui(GUI &gui) {
     int current_entry = 0;
     int total_entries = jsonData.size();
 
+    // One verdict per email, all starting undecided.
+    decisions.assign(total_entries, REVIEW_NONE);
+
+    // Describes a single verdict for display.
+    auto label_for = [](review_result r) -> std::string {
+        if (r == REVIEW_APPROVED) return "approved";
+        if (r == REVIEW_REJECTED) return "rejected";
+        return "not yet decided";
+    };
+
     // Main loop for the GUI
     while (true) {
         process_events();
 
         if (window_close_requested(gui.title)) {
-            std::cout << "Window close requested." << std::endl;
             break;  // Exit the loop if the user closes the window
         }
 
@@ -117,34 +137,69 @@ void run_gui(GUI &gui) {
             int y = 20;
             y = render_long_string("Email " + std::to_string(current_entry + 1) +
                                    " of " + std::to_string(total_entries) +
-                                   "  -  check nothing sensitive remains", 20, y, 1000, 16);
+                                   "  -  " + label_for(decisions[current_entry]),
+                                   20, y, 1000, 16);
             y += 10;
             y = render_long_string("From: " + from, 20, y, 1000, 16);
             y = render_long_string("To: " + to, 20, y, 1000, 16);
             y = render_long_string("Subject: " + subject, 20, y, 1000, 16);
             y = render_long_string("Content: " + content, 20, y, 1000, 16);
 
-            render_long_string("[ press any key for the next email ]", 20, y + 20, 1000, 16);
+            y += 20;
+            y = render_long_string("[A] approve this one     [R] reject this one", 20, y, 1000, 16);
+            render_long_string("[SPACE] skip for now     [B] back", 20, y, 1000, 16);
 
             refresh_screen(60);
 
-            // Advance on a keypress rather than a fixed delay, so there is time
-            // to actually read the entry being reviewed.
-            if (any_key_pressed()) {
+            // Recording a verdict moves on to the next email automatically.
+            if (key_typed(A_KEY)) {
+                decisions[current_entry] = REVIEW_APPROVED;
                 ++current_entry;
+            } else if (key_typed(R_KEY)) {
+                decisions[current_entry] = REVIEW_REJECTED;
+                ++current_entry;
+            } else if (key_typed(SPACE_KEY) || key_typed(RETURN_KEY)) {
+                ++current_entry;
+            } else if (key_typed(B_KEY) && current_entry > 0) {
+                --current_entry;
             }
         } else {
-            // Reviewed everything — hold the last frame until the window closes
+            // Every email has been seen — show what was decided.
+            int approved = 0, rejected = 0, undecided = 0;
+            for (review_result r : decisions) {
+                if (r == REVIEW_APPROVED) ++approved;
+                else if (r == REVIEW_REJECTED) ++rejected;
+                else ++undecided;
+            }
+
             clear_screen(COLOR_WHITE);
-            render_long_string("Reviewed " + std::to_string(total_entries) +
-                               " email(s). Close this window to continue.", 20, 20, 1000, 16);
+            int y = 20;
+            y = render_long_string("Reviewed " + std::to_string(total_entries) + " email(s):", 20, y, 1000, 16);
+            y += 10;
+            y = render_long_string("  approved         " + std::to_string(approved), 20, y, 1000, 16);
+            y = render_long_string("  rejected         " + std::to_string(rejected), 20, y, 1000, 16);
+            y = render_long_string("  not yet decided  " + std::to_string(undecided), 20, y, 1000, 16);
+            y += 10;
+
+            if (undecided > 0) {
+                y = render_long_string("Undecided emails will be withheld, not shared.", 20, y, 1000, 16);
+                y += 10;
+            }
+
+            y = render_long_string("[ENTER] finish and keep only the approved emails", 20, y, 1000, 16);
+            render_long_string("[B] go back and change a decision", 20, y, 1000, 16);
             refresh_screen(60);
+
+            if (key_typed(RETURN_KEY)) {
+                break;
+            } else if (key_typed(B_KEY) && total_entries > 0) {
+                current_entry = total_entries - 1;
+            }
         }
 
     }
-    std::cout << "Exiting the main loop." << std::endl;
+
     // Close the window
     close_window(gui.title);
-    std::cout << "After close window." << std::endl;
 }
 

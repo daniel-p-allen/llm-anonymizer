@@ -75,11 +75,12 @@ out: "Order #PO-012-40000000000000000 was confirmed; contact
 **Build** — clean build from scratch via `make`, no warnings surfaced by the
 SplashKit wrapper.
 
+**Review window** — confirmed working by running it. `any_key_pressed()` did not
+register input and was replaced with explicit `key_typed()` checks; the approve
+path was then exercised successfully and reported `Approved.`
+
 ### Not verified
 
-- **The review window.** The change to field layout and key handling compiles,
-  and the console path is fully exercised, but what is drawn on screen has not
-  been confirmed visually. Run `./anonymizer` and choose option 1.
 - **The Gmail retrieval path**, which requires a `secret.json` OAuth client that
   is not present. Consequently the historical "5 email limit" remains a
   well-supported theory rather than a confirmed diagnosis: `fetch_emails.py:68`
@@ -104,6 +105,24 @@ SplashKit wrapper.
 - **Review window** — fields were drawn at fixed vertical positions and
   overlapped whenever text wrapped; they now stack. Advance is on a keypress
   rather than a two-second timer, and text is no longer drawn in random colours.
+- **A verdict in the review step.** The original window auto-advanced through the
+  entries on a two-second timer and then ended, with no way to accept or refuse
+  the result — the outcome was identical whether or not the reviewer spotted a
+  problem. Each email now carries its own verdict: `A` approves, `R` rejects,
+  `SPACE` defers, `B` steps back to revise an earlier decision. On finishing,
+  `anonymized_data.json` is rewritten to hold only the approved entries.
+
+  Per-email rather than one verdict for the batch, because a batch of thirty may
+  contain one problem email; a single decision would force the reviewer to
+  discard all thirty or share the one they doubted.
+
+  Anything left undecided is withheld rather than shared, and approving nothing
+  deletes the file outright. Treating unreviewed data as safe is precisely the
+  failure this step exists to prevent.
+
+  This is the one behavioural change in this work. It was made because
+  `program.cpp` states the window exists "to allow the user to verify the data",
+  which a review with no possible verdict does not achieve.
 - **`scripts/check-pii.sh`** — scans tracked files for generated data,
   credentials, and any email address outside the RFC 2606 example domains.
 - **`README.md`** — purpose, round-trip diagram, ten-second demo with real
