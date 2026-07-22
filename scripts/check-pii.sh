@@ -34,10 +34,15 @@ done
 
 # Only example.com / example.org / example.net addresses belong in this repo.
 # Those domains are reserved by RFC 2606 precisely for documentation.
-echo "Checking for non-example email addresses in tracked files..."
+#
+# -I skips binary files. Without it, grep reports "Binary file X matches" for
+# any compressed file whose bytes happen to satisfy the pattern, which produced
+# false failures on the screenshots. Images are checked by eye before being
+# added; this pass is for text.
+echo "Checking for non-example email addresses in tracked text files..."
 addresses=$(git ls-files -z \
     | grep -zZv -e '^json.hpp$' -e '^scripts/check-pii.sh$' \
-    | xargs -0 grep -hoE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' 2>/dev/null \
+    | xargs -0 grep -IhoE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' 2>/dev/null \
     | grep -vE '@example\.(com|org|net)$' \
     | sort -u)
 
