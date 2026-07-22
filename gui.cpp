@@ -6,17 +6,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // Load resources
 void load_resources() {
 
     load_font("arial", "DMSans_36pt-Bold.ttf");
-}
-
-// Display text on the GUI
-void display_text(const std::string &text, int x, int y) {
-    color text_color = random_color();
-    draw_text(text, text_color, "arial", 16, x, y);
 }
 
 // Render a long string, splitting it into segments if necessary.
@@ -26,10 +21,31 @@ void display_text(const std::string &text, int x, int y) {
 int render_long_string(const std::string &text, int x, int y, int max_width, int font_size) {
     const std::string font_name = "arial";
 
-    // Split the input string into segments of at most 111 characters each
+    // Split the input into lines of at most 111 characters, breaking at spaces.
+    // Cutting at a fixed offset split words down the middle ("call u / s on"),
+    // which looked like a rendering fault rather than a wrap.
+    const size_t max_chars = 111;
     std::vector<std::string> segments;
-    for (size_t i = 0; i < text.length(); i += 111) {
-        segments.push_back(text.substr(i, 111));
+    size_t start = 0;
+
+    while (start < text.length()) {
+        size_t take = std::min(max_chars, text.length() - start);
+
+        // If more text follows, back up to the last space so a word is not split.
+        if (start + take < text.length()) {
+            size_t space = text.rfind(' ', start + take);
+            if (space != std::string::npos && space > start) {
+                take = space - start;
+            }
+        }
+
+        segments.push_back(text.substr(start, take));
+        start += take;
+
+        // Skip the space we broke on, so lines do not begin with one.
+        while (start < text.length() && text[start] == ' ') {
+            ++start;
+        }
     }
 
     // Render each segment on a new line

@@ -11,9 +11,6 @@ struct email_content {
     std::string to;
 };
 
-// Displays the email content
-void display_anonymized_text(const std::string& text);
-
 // Function to read email content from data.json
 vector<email_content> read_data_from_json(const std::string &filename);
 
