@@ -129,6 +129,12 @@ nothing sensitive is left before anything is sent:
 
 Each email is judged individually:
 
+![The review window showing one scrubbed email awaiting a decision](docs/images/review.jpg)
+
+Contact details have become tokens, while `2021`, `5000`, `4200` and
+`22 October 2023` are left alone — the message still reads as a message, which is
+what makes the model's answer worth having.
+
 | Key | |
 |---|---|
 | `A` | Approve this email |
@@ -136,12 +142,15 @@ Each email is judged individually:
 | `SPACE` | Skip — decide later |
 | `B` | Back to the previous email |
 
-At the end you get a tally, and `ENTER` finishes. `anonymized_data.json` is then
-rewritten to contain **only** the approved emails:
+At the end you get a tally, and `ENTER` finishes:
+
+![The summary screen showing 2 approved, 1 rejected, 0 undecided](docs/images/summary.jpg)
+
+`anonymized_data.json` is then rewritten to contain **only** the approved emails:
 
 ```
-Approved 30 of 33 email(s).
-3 withheld — anonymized_data.json contains only the approved ones.
+Approved 2 of 3 email(s).
+1 withheld — anonymized_data.json contains only the approved ones.
 ```
 
 Per-email rather than one verdict for the batch, because with thirty emails you
