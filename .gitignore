@@ -45,5 +45,3 @@ logs/
 !.vscode/c_cpp_properties.json
 .DS_Store
 
-# --- Working notes (not for the public repo) ------------------------------
-HANDOFF.md

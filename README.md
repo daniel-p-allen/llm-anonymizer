@@ -184,41 +184,31 @@ worth running before you commit.
 
 ## Known limitations
 
-Stated plainly, because you should know what this does not cover before trusting
-it with anything:
+It does **not** detect names, street addresses, or anything else without a
+recognisable shape — the matching is regex-based. That is why the review step
+exists and why it is not optional. Message bodies also come from Gmail's
+`snippet` field, which is a preview rather than the full text, and the LLM step
+is manual: the tool does not talk to any model itself.
 
-- **Names, street addresses and other prose identifiers are not detected.** The
-  matching is regex-based, so it finds values with a recognisable *shape*. This
-  is why the review step exists and why it is not optional.
-- **Parenthesised area codes** such as `(03) 9000 1234` are missed.
-- **Unseparated 5–6 digit numbers** fall between the phone and long-number rules.
-- **Message bodies come from Gmail's `snippet` field** — a preview, not the full
-  text.
-- **The LLM step is manual.** You copy out and paste back in; the tool does not
-  talk to any model itself.
-- **Tokens carry no type information**, so the model cannot tell a phone number
-  from an address, and its output quality suffers accordingly.
+The full list, with the reasoning behind each, is in
+[`ORIGINAL-2023.md`](ORIGINAL-2023.md).
 
 ---
 
 ## About this version
 
-Built in 2023 as a student project, and kept here as originally architected —
-C++ with a SplashKit review window, and the two-leg design described above.
-This release repairs the defects found in that original build (token collisions
-on repeated matches, punctuation loss on reversal, over-matching that replaced
-years, and a silent failure in the Gmail bridge) and adds a build file, a demo
-path and this documentation. The architecture is unchanged.
+Built in 2023, and kept here as originally architected — C++ with a SplashKit
+review window. This release repairs the defects in that build and adds a build
+file, a demo path and documentation; the architecture is unchanged.
 
-[`ORIGINAL-2023.md`](ORIGINAL-2023.md) is the design record for that original
-version: what it set out to do, the decisions behind it, how far it got, and
-where the thinking stopped.
+[`ORIGINAL-2023.md`](ORIGINAL-2023.md) is the design record: what it set out to
+do, the decisions behind it, what had to be repaired, and what it still does not
+cover.
 
 ## Development notes
 
 The original program was written by me in 2023. The 2026 repair work — the defect
-diagnosis and fixes recorded in [`WORK-REPORT.md`](WORK-REPORT.md), along with the
-build tooling and documentation — was carried out with the assistance of an AI
-coding assistant (Claude). The design, the architectural decisions, the scope of
-what to change and what to preserve, and the review of all resulting work are my
-own.
+diagnosis and fixes, along with the build tooling and documentation — was carried
+out with the assistance of an AI coding assistant (Claude). The design, the
+architectural decisions, the scope of what to change and what to preserve, and
+the review of all resulting work are my own.
