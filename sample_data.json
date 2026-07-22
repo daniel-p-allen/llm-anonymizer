@@ -1,0 +1,20 @@
+[
+    {
+        "from": "Careers Team <careers@example.com>",
+        "to": "Alex Taylor <alex.taylor@example.org>",
+        "subject": "Applications for the final round close 22 October 2023",
+        "content": "Hi Alex, In 2021 the program set out to upskill 5000 people with in-demand digital skills so they can transition into new careers. Since then, over 4200 have completed training. To discuss your application, call us on +61 3 9000 1234 or reply to careers@example.com."
+    },
+    {
+        "from": "Order Confirmations <orders@example.com>",
+        "to": "Alex Taylor <alex.taylor@example.org>",
+        "subject": "Your order confirmation (#PO-012-40000000000000000)",
+        "content": "Hi Alex Taylor, Your order is confirmed! Email: alex.taylor@example.org Phone: +123456789 We're getting your order ready for shipping as soon as possible. We will notify you when it is shipped. If delivered after Sep 21, you will get a AU$5 credit within 48 hours."
+    },
+    {
+        "from": "Account Alerts <no-reply@example.net>",
+        "to": "Alex Taylor <alex.taylor@example.org>",
+        "subject": "Alerts",
+        "content": "A new sign-in to your account was detected on 14 September 2023. If this was not you, contact support on 1300 555 010 or email support@example.net. Reference 8827-4419-2201."
+    }
+]

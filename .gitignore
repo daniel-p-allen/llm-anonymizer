@@ -1,0 +1,43 @@
+# --- Generated at runtime -------------------------------------------------
+# These are produced by the tool and may contain real personal data.
+# Never commit them.
+data.json
+anonymized_data.json
+swapped.json
+output_data.csv
+finished_data.csv
+
+# --- Credentials ----------------------------------------------------------
+# secret.json  = Google OAuth client secret (from Google Cloud Console)
+# token.json   = cached user access/refresh token, written on first auth
+secret.json
+token.json
+credentials.json
+client_secret*.json
+token.pickle
+*.pem
+.env
+
+# --- Python ---------------------------------------------------------------
+.venv/
+__pycache__/
+*.pyc
+
+# --- Build artifacts ------------------------------------------------------
+app
+appce
+*.o
+*.out
+*.dSYM/
+build/
+
+# --- Logs -----------------------------------------------------------------
+logs/
+*.log
+
+# --- Editor / OS ----------------------------------------------------------
+.vscode/
+.DS_Store
+
+# --- Working notes (not for the public repo) ------------------------------
+HANDOFF.md

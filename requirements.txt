@@ -1,0 +1,6 @@
+# Python dependencies for fetch_emails.py (Gmail retrieval).
+# The C++ side has no package manager deps: json.hpp is vendored in-repo,
+# and SplashKit is installed separately via the SplashKit Manager (skm).
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
