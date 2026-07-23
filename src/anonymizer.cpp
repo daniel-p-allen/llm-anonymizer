@@ -24,7 +24,14 @@ const std::string filename = "swapped.json";
 // or a long unbroken run. An earlier version made separators optional and
 // allowed groups as short as one digit, which meant a bare year such as "2021"
 // satisfied it (20|2|1) and was replaced, mangling ordinary prose.
+//
+// Calling this twice must not leave two copies of every pattern behind, so the
+// list is emptied before it is rebuilt. add_pattern appends, and reset_patterns
+// clears the mappings but not the list itself — without this the second call
+// would double everything.
 void initialize_patterns() {
+    patterns.clear();
+
     // Email addresses.
     add_pattern("email addresses", "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,24}");
 

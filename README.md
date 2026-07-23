@@ -85,6 +85,7 @@ punctuation and formatting intact:
 
 ```
 src/       program source (C++ core, plus the Python Gmail bridge)
+tests/     unit tests
 vendor/    third-party headers, committed so there is nothing to install
 assets/    fonts and other runtime resources
 scripts/   repository tooling
@@ -112,8 +113,9 @@ To read your own Gmail, additionally:
 | `make deps` | Installs them into a local `.venv` |
 | `secret.json` | Your Google OAuth client — see below |
 
-`json.hpp` ([nlohmann/json](https://github.com/nlohmann/json)) is vendored in the
-repository, so there is nothing else to install.
+`json.hpp` ([nlohmann/json](https://github.com/nlohmann/json)) and `doctest.h`
+([doctest](https://github.com/doctest/doctest), used by `make test`) are vendored
+in the repository, so there is nothing else to install.
 
 ### Connecting Gmail
 
@@ -209,6 +211,36 @@ is manual: the tool does not talk to any model itself.
 The full list, with the reasoning behind each, is in
 [`ORIGINAL-2023.md`](ORIGINAL-2023.md).
 
+## Tests
+
+```bash
+make test
+```
+
+Unit tests over the logic — pattern matching, token generation, the JSON layer,
+and the round trip. They need `skm` for the same reason the program does, and run
+in CI on every push.
+
+The test that matters most is the round trip: text is anonymized, the mapping is
+written to `swapped.json`, and the mapping is then reloaded from disk and used to
+restore the text. What comes back must be byte for byte what went in — anything
+less means the tool has quietly corrupted someone's mail.
+
+The rest exist because this release repaired real defects, and a fix without a
+test is a fix that comes back. Each of these pins one:
+
+| Test | The defect it holds shut |
+|---|---|
+| a bare year is left alone | The digit pattern once matched `2021` as `20\|2\|1`, mangling ordinary prose |
+| an address containing a long digit run is replaced whole | Digit patterns chewing through the numeric part of an email address |
+| punctuation survives the round trip | Restoring once split lines on commas and stripped punctuation |
+| ordinary ten-character words are left alone | Tokens are matched by shape, so `everything` is a candidate too |
+| the mappings it builds are visible to the caller | `placeholders` was passed by value, discarding every mapping on return |
+| null fields become empty strings | A message with no subject used to throw |
+
+Each test runs in a temporary directory of its own, because the code under test
+writes `swapped.json` and `anonymized_data.json` to the working directory.
+
 ---
 
 ## About this version
@@ -224,7 +256,8 @@ cover.
 ## License
 
 MIT — see [`LICENSE`](LICENSE). `vendor/json.hpp` is
-[nlohmann/json](https://github.com/nlohmann/json), also MIT.
+[nlohmann/json](https://github.com/nlohmann/json) and `vendor/doctest.h` is
+[doctest](https://github.com/doctest/doctest), both also MIT.
 
 ## Development notes
 

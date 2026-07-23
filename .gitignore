@@ -27,6 +27,7 @@ __pycache__/
 # `anonymizer` is the compiled binary produced by the Makefile. It shares its
 # name with the project, so it is easy to commit by accident.
 anonymizer
+run_tests
 app
 appce
 *.o

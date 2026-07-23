@@ -1,9 +1,14 @@
 name: checks
 
-# The C++ build is not run here. SplashKit is installed through its own manager
-# rather than a package repository, and a build job that is flaky tells you less
-# than no build job at all. What runs below is deterministic: it either passes or
-# something is genuinely wrong.
+# Two jobs, deliberately kept apart.
+#
+# `checks` needs nothing beyond Python and is completely deterministic: it either
+# passes or something is genuinely wrong.
+#
+# `tests` builds and runs the C++ unit tests, which means installing SplashKit
+# through its own manager rather than a package repository. That is the less
+# predictable half, so it is isolated — if the installer upstream ever breaks, the
+# failure is visibly its own and `checks` still reports honestly.
 
 on:
   push:
@@ -48,3 +53,40 @@ jobs:
 
       - name: GUI config is valid JSON
         run: python -c "import json; json.load(open('gui_config.json'))"
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # SplashKit's own dependencies. The tests never open a window, so no display
+      # server is needed — SplashKit only wants one when a window is actually
+      # created, and gui.cpp is not part of the test build.
+      - name: Install SplashKit dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            curl git build-essential clang libcurl4-openssl-dev
+
+      - name: Cache SplashKit
+        id: cache-splashkit
+        uses: actions/cache@v4
+        with:
+          path: ~/.splashkit
+          key: splashkit-${{ runner.os }}-v1
+
+      - name: Install SplashKit
+        if: steps.cache-splashkit.outputs.cache-hit != 'true'
+        run: |
+          curl -s https://raw.githubusercontent.com/splashkit/skm/master/install-scripts/skm-install.sh | bash
+
+      # The installer appends to ~/.bashrc, which a non-interactive job never
+      # reads, so put skm on the path explicitly for the steps that follow.
+      - name: Put skm on the path
+        run: echo "$HOME/.splashkit" >> $GITHUB_PATH
+
+      - name: Install the SplashKit libraries
+        run: skm install || skm update
+
+      - name: Unit tests
+        run: make test
